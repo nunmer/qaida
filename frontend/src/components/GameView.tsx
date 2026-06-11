@@ -7,8 +7,10 @@ import SatelliteSightPane from "@/components/SatelliteSightPane";
 import ShareButton from "@/components/ShareButton";
 import StreetViewPane, { streetViewEnabled } from "@/components/StreetViewPane";
 import type { GameLocation } from "@/data/locations";
-import { MODE_LABELS, ROUNDS_PER_GAME, todayKey, type GameMode } from "@/lib/rounds";
+import { useI18n } from "@/lib/i18n";
+import { ROUNDS_PER_GAME, todayKey, type GameMode } from "@/lib/rounds";
 import { formatDistance } from "@/lib/scoring";
+import type { Translations } from "@/lib/translations";
 import { useDailyResult } from "@/lib/useStorage";
 import { useGameStore } from "@/store/gameStore";
 
@@ -17,6 +19,7 @@ interface GameViewProps {
 }
 
 export default function GameView({ mode }: GameViewProps) {
+  const { t } = useI18n();
   const status = useGameStore((s) => s.status);
   const startGame = useGameStore((s) => s.startGame);
   const dailyResult = useDailyResult(todayKey());
@@ -33,7 +36,7 @@ export default function GameView({ mode }: GameViewProps) {
   if (status === "idle") {
     return (
       <div className="flex h-dvh items-center justify-center text-muted">
-        Loading…
+        {t.play.loading}
       </div>
     );
   }
@@ -42,30 +45,28 @@ export default function GameView({ mode }: GameViewProps) {
 }
 
 function DailyAlreadyPlayed({ score }: { score: number }) {
+  const { t } = useI18n();
+
   return (
     <div className="bg-sky-gradient flex h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
       <h1 className="font-display text-2xl font-bold">
-        Daily Challenge complete
+        {t.play.dailyDoneTitle}
       </h1>
       <p className="text-muted">
-        You scored{" "}
-        <span className="text-gold-glow font-display font-bold text-gold">
-          {score.toLocaleString()}
-        </span>{" "}
-        today. A new challenge arrives at midnight.
+        {t.play.dailyDoneBody(score.toLocaleString())}
       </p>
       <div className="flex gap-3">
         <Link
           href="/play?mode=quick"
           className="shadow-accent-glow rounded-xl bg-accent px-6 py-3 font-display font-bold text-background transition hover:bg-accent-strong"
         >
-          Quick Game
+          {t.play.quickGame}
         </Link>
         <Link
           href="/"
           className="rounded-xl border border-border-subtle bg-surface/80 px-6 py-3 font-semibold backdrop-blur"
         >
-          Home
+          {t.play.home}
         </Link>
       </div>
     </div>
@@ -73,6 +74,7 @@ function DailyAlreadyPlayed({ score }: { score: number }) {
 }
 
 function RoundScreen() {
+  const { t } = useI18n();
   const {
     mode,
     rounds,
@@ -106,13 +108,13 @@ function RoundScreen() {
           Qaida
         </Link>
         <span className="text-muted">
-          {MODE_LABELS[mode]} · Round {roundIndex + 1}
-          {totalRounds ? ` of ${totalRounds}` : ""}
+          {t.modes[mode].title} · {t.play.round} {roundIndex + 1}
+          {totalRounds ? ` / ${totalRounds}` : ""}
         </span>
         <span className="flex items-center gap-3 font-medium tabular-nums">
           {streak > 1 && (
-            <span className="text-gold" title="Close-guess streak">
-              streak {streak}
+            <span className="text-gold" title={t.play.streak}>
+              {t.play.streak} {streak}
             </span>
           )}
           <span aria-label="Total score">{totalScore.toLocaleString()}</span>
@@ -144,9 +146,9 @@ function RoundScreen() {
               <button
                 onClick={() => setMapExpanded((v) => !v)}
                 className="absolute left-2 top-2 z-10 rounded bg-background/85 px-2 py-1 text-xs font-medium text-foreground"
-                aria-label={mapExpanded ? "Shrink map" : "Expand map"}
+                aria-label={mapExpanded ? t.play.shrink : t.play.expand}
               >
-                {mapExpanded ? "Shrink" : "Expand"}
+                {mapExpanded ? t.play.shrink : t.play.expand}
               </button>
             </div>
             <button
@@ -154,7 +156,7 @@ function RoundScreen() {
               disabled={!pin}
               className="rounded-lg bg-accent py-2.5 font-semibold text-background shadow-md transition enabled:hover:bg-accent-strong enabled:active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {pin ? "Submit guess" : "Place your pin on the map"}
+              {pin ? t.play.submit : t.play.placePin}
             </button>
           </div>
         )}
@@ -181,7 +183,7 @@ function RoundScreen() {
                     {lastResult.location.name}
                     {lastResult.isPerfect && (
                       <span className="ml-2 inline-block -translate-y-0.5 rounded-full border border-gold/50 bg-gold/10 px-2 py-0.5 align-middle text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
-                        perfect
+                        {t.play.perfect}
                       </span>
                     )}
                   </h2>
@@ -190,17 +192,19 @@ function RoundScreen() {
                   </span>
                 </div>
                 <p className="text-sm text-muted">
-                  {lastResult.location.city}, {lastResult.location.region} —
-                  your guess was{" "}
-                  <span className="font-medium text-foreground">
-                    {formatDistance(lastResult.distanceKm)}
-                  </span>{" "}
-                  away
+                  {lastResult.location.city}, {lastResult.location.region} —{" "}
+                  {t.play.guessDistance(formatDistance(lastResult.distanceKm))}
                   {lastResult.bonus > 0 && (
-                    <> · speed bonus +{lastResult.bonus}</>
+                    <> · {t.play.speedBonus(lastResult.bonus)}</>
                   )}
                   {lastResult.multiplier > 1 && (
-                    <> · streak ×{lastResult.multiplier.toFixed(1)}</>
+                    <>
+                      {" "}
+                      ·{" "}
+                      {t.play.streakMultiplier(
+                        lastResult.multiplier.toFixed(1),
+                      )}
+                    </>
                   )}
                 </p>
                 <p className="rounded-lg border-l-2 border-sand/50 bg-sand/5 px-3 py-2 text-sm leading-relaxed text-sand">
@@ -213,15 +217,15 @@ function RoundScreen() {
                   >
                     {mode !== "infinite" &&
                     roundIndex + 1 >= Math.min(ROUNDS_PER_GAME, rounds.length)
-                      ? "See results"
-                      : "Next round"}
+                      ? t.play.seeResults
+                      : t.play.nextRound}
                   </button>
                   {mode === "infinite" && (
                     <button
                       onClick={quitToSummary}
                       className="rounded-lg border border-border-subtle bg-surface-2 px-4 py-2.5 font-medium"
                     >
-                      Finish
+                      {t.play.finish}
                     </button>
                   )}
                 </div>
@@ -302,37 +306,38 @@ function RoundPhoto({ location }: { location: GameLocation }) {
 }
 
 /** Playful rank based on average score per round (max 5000). */
-function rankTitle(totalScore: number, rounds: number): string {
+function rankTitle(
+  totalScore: number,
+  rounds: number,
+  t: Translations,
+): string {
   const avg = rounds > 0 ? totalScore / rounds : 0;
-  if (avg >= 4500) return "Legend of the Steppe";
-  if (avg >= 3500) return "Pathfinder";
-  if (avg >= 2500) return "Explorer";
-  if (avg >= 1500) return "Traveler";
-  return "Tourist";
+  if (avg >= 4500) return t.ranks.legend;
+  if (avg >= 3500) return t.ranks.pathfinder;
+  if (avg >= 2500) return t.ranks.explorer;
+  if (avg >= 1500) return t.ranks.traveler;
+  return t.ranks.tourist;
 }
 
 function GameSummary() {
+  const { t } = useI18n();
   const { mode, results, totalScore, bestStreak, startGame } = useGameStore();
-  const cities = results.map((r) => ({
-    name: r.location.city,
-    close: r.isClose,
-  }));
 
   return (
     <div className="bg-sky-gradient flex min-h-dvh w-full flex-col">
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 p-6">
         <header className="space-y-2 pt-8 text-center">
           <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-muted">
-            {MODE_LABELS[mode]} complete
+            {t.modes[mode].title} {t.summary.complete}
           </p>
           <h1 className="text-gold-glow font-display text-7xl font-bold tabular-nums text-gold">
             {totalScore.toLocaleString()}
           </h1>
           <p className="font-display text-lg font-bold text-sand">
-            {rankTitle(totalScore, results.length)}
+            {rankTitle(totalScore, results.length, t)}
           </p>
           <p className="text-sm text-muted">
-            {results.length} rounds · best streak {bestStreak}
+            {t.summary.line(results.length, bestStreak)}
           </p>
         </header>
 
@@ -362,20 +367,23 @@ function GameSummary() {
         </ul>
 
         <div className="flex flex-col gap-2 pb-4">
-          <ShareButton score={totalScore} mode={mode} cities={cities} />
+          <ShareButton
+            score={totalScore}
+            distancesKm={results.map((r) => r.distanceKm)}
+          />
           {mode !== "daily" && (
             <button
               onClick={() => startGame(mode)}
               className="shadow-accent-glow rounded-xl bg-accent py-3 font-display font-bold text-background transition hover:bg-accent-strong active:scale-[0.99]"
             >
-              Play again
+              {t.summary.playAgain}
             </button>
           )}
           <Link
             href="/"
             className="rounded-xl border border-border-subtle bg-surface/80 py-3 text-center font-medium backdrop-blur"
           >
-            Home
+            {t.play.home}
           </Link>
         </div>
       </div>

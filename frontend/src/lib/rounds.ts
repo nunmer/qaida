@@ -9,14 +9,6 @@ export type GameMode = "quick" | "daily" | "infinite" | "landmark" | "expert";
 
 export const ROUNDS_PER_GAME = 5;
 
-export const MODE_LABELS: Record<GameMode, string> = {
-  quick: "Quick Play",
-  daily: "Daily Challenge",
-  infinite: "Infinite Mode",
-  landmark: "Landmark Mode",
-  expert: "Expert Mode",
-};
-
 /** Deterministic PRNG (mulberry32) so every player gets the same daily game. */
 function mulberry32(seed: number): () => number {
   let a = seed;
