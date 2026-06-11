@@ -305,6 +305,13 @@ function RoundPhoto({ location }: { location: GameLocation }) {
   );
 }
 
+/** Distance tier classes — mirrors the emoji tiers on the share card. */
+function distanceBadgeClass(km: number): string {
+  if (km < 100) return "border-accent/40 bg-accent/10 text-accent-strong";
+  if (km < 500) return "border-gold/40 bg-gold/10 text-gold";
+  return "border-danger/40 bg-danger/10 text-danger";
+}
+
 /** Playful rank based on average score per round (max 5000). */
 function rankTitle(
   totalScore: number,
@@ -350,11 +357,7 @@ function GameSummary() {
               <span className="flex items-center gap-2">
                 <span className="font-medium">{r.location.city}</span>
                 <span
-                  className={`rounded-full border px-2 py-0.5 text-[0.65rem] font-semibold tabular-nums ${
-                    r.isClose
-                      ? "border-accent/40 bg-accent/10 text-accent-strong"
-                      : "border-danger/40 bg-danger/10 text-danger"
-                  }`}
+                  className={`rounded-full border px-2 py-0.5 text-[0.65rem] font-semibold tabular-nums ${distanceBadgeClass(r.distanceKm)}`}
                 >
                   {formatDistance(r.distanceKm)}
                 </span>

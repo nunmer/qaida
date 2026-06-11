@@ -13,15 +13,25 @@ function formatShareDistance(km: number): string {
   return km < 1 ? "<1km" : `${Math.round(km)}km`;
 }
 
+/** Wordle-style tier dot: how close the guess was. */
+function distanceEmoji(km: number): string {
+  if (km < 1) return "🎯";
+  if (km < 100) return "🟢";
+  if (km < 500) return "🟡";
+  return "🔴";
+}
+
 function buildShareText(
   score: number,
   distancesKm: number[],
   catchphrase: string,
 ): string {
   return [
-    "Qaida",
-    score.toLocaleString("en-US"),
-    ...distancesKm.map((km, i) => `${i + 1}. ${formatShareDistance(km)}`),
+    "Qaida 🇰🇿",
+    `🏆 ${score.toLocaleString("en-US")}`,
+    ...distancesKm.map(
+      (km, i) => `${distanceEmoji(km)} ${i + 1}. ${formatShareDistance(km)}`,
+    ),
     "",
     catchphrase,
     "",
