@@ -196,7 +196,7 @@ function RoundScreen() {
                     <> · streak ×{lastResult.multiplier.toFixed(1)}</>
                   )}
                 </p>
-                <p className="text-sm leading-relaxed">
+                <p className="rounded-lg border-l-2 border-sand/50 bg-sand/5 px-3 py-2 text-sm leading-relaxed text-sand">
                   {lastResult.location.fact}
                 </p>
                 <div className="flex gap-2 pt-1">

@@ -124,7 +124,7 @@ export default function GuessMap({ pin, result, onPick, className }: GuessMapPro
     }
     if (!guessMarkerRef.current) {
       guessMarkerRef.current = new maplibregl.Marker({
-        element: makePinElement("#36b3a8"),
+        element: makePinElement("#00a6a6"),
         anchor: "bottom",
         offset: [0, 2],
       })
@@ -156,7 +156,7 @@ export default function GuessMap({ pin, result, onPick, className }: GuessMapPro
     const draw = () => {
       clearResult();
       actualMarkerRef.current = new maplibregl.Marker({
-        element: makePinElement("#d9a441"),
+        element: makePinElement("#d6a84f"),
         anchor: "bottom",
         offset: [0, 2],
       })
@@ -182,7 +182,7 @@ export default function GuessMap({ pin, result, onPick, className }: GuessMapPro
         type: "line",
         source: "result-line",
         paint: {
-          "line-color": "#d9a441",
+          "line-color": "#d6a84f",
           "line-width": 2,
           "line-dasharray": [2, 2],
         },

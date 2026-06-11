@@ -1,16 +1,27 @@
 @import "tailwindcss";
 @import "maplibre-gl/dist/maplibre-gl.css";
 
+/* Qaida design system — palette and tokens defined in DESIGN.md */
 :root {
-  --background: #10151b;
-  --surface: #161d25;
-  --surface-2: #1d2630;
-  --border: #28323e;
-  --foreground: #e8edf2;
-  --muted: #8b98a5;
-  --accent: #36b3a8;
-  --accent-strong: #4cd2c5;
-  --gold: #d9a441;
+  /* Core palette */
+  --steppe-black: #0b1118;
+  --night-blue: #111c2c;
+  --turquoise: #00a6a6;
+  --steppe-gold: #d6a84f;
+  --sand: #d9c7a3;
+  --snow: #f5f7fa;
+  --fog: #9aa8b8;
+
+  /* Semantic tokens */
+  --background: var(--steppe-black);
+  --surface: var(--night-blue);
+  --surface-2: #182840;
+  --border: #22344c;
+  --foreground: var(--snow);
+  --muted: var(--fog);
+  --accent: var(--turquoise);
+  --accent-strong: #00c4c4;
+  --gold: var(--steppe-gold);
   --danger: #e06c6c;
 }
 
@@ -24,6 +35,7 @@
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-gold: var(--gold);
+  --color-sand: var(--sand);
   --color-danger: var(--danger);
 }
 
@@ -31,6 +43,18 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Sky Gradient — atmosphere only, never a generic startup gradient:
+   a faint turquoise glow on the horizon fading into the steppe night. */
+.bg-sky-gradient {
+  background:
+    radial-gradient(
+      ellipse 90% 55% at 50% -12%,
+      rgba(0, 166, 166, 0.16),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--night-blue) 0%, var(--steppe-black) 72%);
 }
 
 .maplibregl-canvas {
