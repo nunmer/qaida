@@ -43,23 +43,27 @@ export default function GameView({ mode }: GameViewProps) {
 
 function DailyAlreadyPlayed({ score }: { score: number }) {
   return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="text-2xl font-semibold">Daily Challenge complete</h1>
+    <div className="bg-sky-gradient flex h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
+      <h1 className="font-display text-2xl font-bold">
+        Daily Challenge complete
+      </h1>
       <p className="text-muted">
         You scored{" "}
-        <span className="font-semibold text-gold">{score.toLocaleString()}</span>{" "}
+        <span className="text-gold-glow font-display font-bold text-gold">
+          {score.toLocaleString()}
+        </span>{" "}
         today. A new challenge arrives at midnight.
       </p>
       <div className="flex gap-3">
         <Link
           href="/play?mode=quick"
-          className="rounded-lg bg-accent px-6 py-3 font-semibold text-background"
+          className="shadow-accent-glow rounded-xl bg-accent px-6 py-3 font-display font-bold text-background transition hover:bg-accent-strong"
         >
           Quick Game
         </Link>
         <Link
           href="/"
-          className="rounded-lg border border-border-subtle bg-surface px-6 py-3 font-semibold"
+          className="rounded-xl border border-border-subtle bg-surface/80 px-6 py-3 font-semibold backdrop-blur"
         >
           Home
         </Link>
@@ -95,7 +99,10 @@ function RoundScreen() {
     // page flow, so the map can never collapse to zero.
     <div className="fixed inset-0 flex flex-col bg-background">
       <header className="z-20 flex h-11 shrink-0 items-center justify-between gap-2 border-b border-border-subtle bg-background/95 px-4 text-sm">
-        <Link href="/" className="font-semibold text-accent-strong">
+        <Link
+          href="/"
+          className="font-display font-bold uppercase tracking-wider text-accent-strong"
+        >
           Qaida
         </Link>
         <span className="text-muted">
@@ -170,15 +177,15 @@ function RoundScreen() {
             <div className="absolute inset-x-0 bottom-0 border-t border-border-subtle bg-surface/95 p-4 backdrop-blur">
               <div className="mx-auto max-w-xl space-y-3">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="text-lg font-semibold">
+                  <h2 className="font-display text-lg font-bold">
                     {lastResult.location.name}
                     {lastResult.isPerfect && (
-                      <span className="ml-2 align-middle text-xs font-semibold uppercase tracking-wide text-gold">
+                      <span className="ml-2 inline-block -translate-y-0.5 rounded-full border border-gold/50 bg-gold/10 px-2 py-0.5 align-middle text-[0.65rem] font-semibold uppercase tracking-wider text-gold">
                         perfect
                       </span>
                     )}
                   </h2>
-                  <span className="text-xl font-bold tabular-nums text-gold">
+                  <span className="text-gold-glow font-display text-2xl font-bold tabular-nums text-gold">
                     +{lastResult.total.toLocaleString()}
                   </span>
                 </div>
@@ -294,6 +301,16 @@ function RoundPhoto({ location }: { location: GameLocation }) {
   );
 }
 
+/** Playful rank based on average score per round (max 5000). */
+function rankTitle(totalScore: number, rounds: number): string {
+  const avg = rounds > 0 ? totalScore / rounds : 0;
+  if (avg >= 4500) return "Legend of the Steppe";
+  if (avg >= 3500) return "Pathfinder";
+  if (avg >= 2500) return "Explorer";
+  if (avg >= 1500) return "Traveler";
+  return "Tourist";
+}
+
 function GameSummary() {
   const { mode, results, totalScore, bestStreak, startGame } = useGameStore();
   const cities = results.map((r) => ({
@@ -302,56 +319,65 @@ function GameSummary() {
   }));
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 p-6">
-      <header className="space-y-1 text-center">
-        <p className="text-sm uppercase tracking-widest text-muted">
-          {MODE_LABELS[mode]} complete
-        </p>
-        <h1 className="text-5xl font-bold tabular-nums text-gold">
-          {totalScore.toLocaleString()}
-        </h1>
-        <p className="text-muted">
-          {results.length} rounds · best streak {bestStreak}
-        </p>
-      </header>
+    <div className="bg-sky-gradient flex min-h-dvh w-full flex-col">
+      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 p-6">
+        <header className="space-y-2 pt-8 text-center">
+          <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-muted">
+            {MODE_LABELS[mode]} complete
+          </p>
+          <h1 className="text-gold-glow font-display text-7xl font-bold tabular-nums text-gold">
+            {totalScore.toLocaleString()}
+          </h1>
+          <p className="font-display text-lg font-bold text-sand">
+            {rankTitle(totalScore, results.length)}
+          </p>
+          <p className="text-sm text-muted">
+            {results.length} rounds · best streak {bestStreak}
+          </p>
+        </header>
 
-      <ul className="space-y-2">
-        {results.map((r, i) => (
-          <li
-            key={`${r.location.id}-${i}`}
-            className="flex items-center justify-between rounded-lg border border-border-subtle bg-surface px-4 py-3"
-          >
-            <span>
-              {r.location.city}
-              <span
-                className={`ml-2 text-xs ${r.isClose ? "text-accent-strong" : "text-danger"}`}
-              >
-                {formatDistance(r.distanceKm)}
+        <ul className="space-y-2">
+          {results.map((r, i) => (
+            <li
+              key={`${r.location.id}-${i}`}
+              className="flex items-center justify-between rounded-xl border border-border-subtle bg-surface/80 px-4 py-3 backdrop-blur"
+            >
+              <span className="flex items-center gap-2">
+                <span className="font-medium">{r.location.city}</span>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[0.65rem] font-semibold tabular-nums ${
+                    r.isClose
+                      ? "border-accent/40 bg-accent/10 text-accent-strong"
+                      : "border-danger/40 bg-danger/10 text-danger"
+                  }`}
+                >
+                  {formatDistance(r.distanceKm)}
+                </span>
               </span>
-            </span>
-            <span className="font-medium tabular-nums">
-              {r.total.toLocaleString()}
-            </span>
-          </li>
-        ))}
-      </ul>
+              <span className="font-display font-bold tabular-nums">
+                {r.total.toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ul>
 
-      <div className="flex flex-col gap-2">
-        <ShareButton score={totalScore} mode={mode} cities={cities} />
-        {mode !== "daily" && (
-          <button
-            onClick={() => startGame(mode)}
-            className="rounded-lg bg-accent py-3 font-semibold text-background transition hover:bg-accent-strong active:scale-[0.99]"
+        <div className="flex flex-col gap-2 pb-4">
+          <ShareButton score={totalScore} mode={mode} cities={cities} />
+          {mode !== "daily" && (
+            <button
+              onClick={() => startGame(mode)}
+              className="shadow-accent-glow rounded-xl bg-accent py-3 font-display font-bold text-background transition hover:bg-accent-strong active:scale-[0.99]"
+            >
+              Play again
+            </button>
+          )}
+          <Link
+            href="/"
+            className="rounded-xl border border-border-subtle bg-surface/80 py-3 text-center font-medium backdrop-blur"
           >
-            Play again
-          </button>
-        )}
-        <Link
-          href="/"
-          className="rounded-lg border border-border-subtle bg-surface py-3 text-center font-medium"
-        >
-          Home
-        </Link>
+            Home
+          </Link>
+        </div>
       </div>
     </div>
   );

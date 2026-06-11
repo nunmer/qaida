@@ -37,6 +37,7 @@
   --color-gold: var(--gold);
   --color-sand: var(--sand);
   --color-danger: var(--danger);
+  --font-display: var(--font-space-grotesk);
 }
 
 body {
@@ -55,6 +56,18 @@ body {
       transparent 70%
     ),
     linear-gradient(180deg, var(--night-blue) 0%, var(--steppe-black) 72%);
+}
+
+/* Gold glow for score reveals and achievements */
+.text-gold-glow {
+  text-shadow: 0 0 28px rgba(214, 168, 79, 0.45);
+}
+
+/* Turquoise glow for the primary CTA */
+.shadow-accent-glow {
+  box-shadow:
+    0 0 24px rgba(0, 166, 166, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .maplibregl-canvas {

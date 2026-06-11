@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Qaida — frontend
 
-## Getting Started
+The Next.js 16 (App Router) frontend for **Qaida**, a GeoGuessr-style
+geography game about Kazakhstan. This is the whole MVP — game logic runs
+client-side, stats live in `localStorage`, no backend.
 
-First, run the development server:
+Full project docs live at the repo root: [README](../README.md) ·
+[PROJECT.md](../PROJECT.md) · [DESIGN.md](../DESIGN.md).
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Optional Street View panoramas — create `.env.local` (see
+`.env.local.example`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Without a key the game falls back to local photos.
 
-## Learn More
+## Build & verify
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build                      # production build + type check
+npm start                          # serve the build
+node scripts/test-scoring.mjs      # scoring unit checks
+node scripts/diagnose.mjs          # headless check of /play (server must be running)
+node scripts/screenshot-home.mjs   # capture the landing page
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/          routes: / (landing), /play, /leaderboard; globals.css holds
+                  the DESIGN.md color tokens, Sky Gradient and glow utilities
+src/components/   GameView, GuessMap (MapLibre), StreetViewPane,
+                  SatelliteSightPane, ShareButton
+src/data/         locations.ts — the location dataset
+src/lib/          scoring, round selection / daily seed, storage hooks
+src/store/        gameStore.ts — Zustand game state machine
+scripts/          image pipeline (resolve/download/localize), diagnostics
+public/locations/ location photos (Wikimedia Commons)
+```
