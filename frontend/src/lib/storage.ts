@@ -97,9 +97,18 @@ export function recordGame(
   return next;
 }
 
+export interface DailyRoundSummary {
+  city: string;
+  distanceKm: number;
+  total: number;
+}
+
 export interface DailyResult {
   dateKey: string;
   score: number;
+  /** Per-round details; absent in results saved by older versions. */
+  rounds?: DailyRoundSummary[];
+  bestStreak?: number;
 }
 
 export function loadDailyResult(dateKey: string): DailyResult | null {

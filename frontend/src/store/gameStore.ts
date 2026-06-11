@@ -71,7 +71,16 @@ function finishStats(state: Pick<GameState, "mode" | "results" | "totalScore" | 
     perfects,
   );
   if (state.mode === "daily") {
-    saveDailyResult({ dateKey, score: state.totalScore });
+    saveDailyResult({
+      dateKey,
+      score: state.totalScore,
+      bestStreak: state.bestStreak,
+      rounds: state.results.map((r) => ({
+        city: r.location.city,
+        distanceKm: r.distanceKm,
+        total: r.total,
+      })),
+    });
   }
 }
 

@@ -10,6 +10,7 @@ import type { GameLocation } from "@/data/locations";
 import { useI18n } from "@/lib/i18n";
 import { ROUNDS_PER_GAME, todayKey, type GameMode } from "@/lib/rounds";
 import { formatDistance } from "@/lib/scoring";
+import type { DailyResult } from "@/lib/storage";
 import type { Translations } from "@/lib/translations";
 import { useDailyResult } from "@/lib/useStorage";
 import { useGameStore } from "@/store/gameStore";
@@ -31,7 +32,7 @@ export default function GameView({ mode }: GameViewProps) {
   }, [mode, startGame, dailyBlocked]);
 
   if (dailyBlocked && status === "idle") {
-    return <DailyAlreadyPlayed score={dailyResult.score} />;
+    return <DailyAlreadyPlayed result={dailyResult} />;
   }
   if (status === "idle") {
     return (
@@ -44,30 +45,71 @@ export default function GameView({ mode }: GameViewProps) {
   return <RoundScreen />;
 }
 
-function DailyAlreadyPlayed({ score }: { score: number }) {
+function DailyAlreadyPlayed({ result }: { result: DailyResult }) {
   const { t } = useI18n();
+  const rounds = result.rounds ?? [];
 
   return (
-    <div className="bg-sky-gradient flex h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="font-display text-2xl font-bold">
-        {t.play.dailyDoneTitle}
-      </h1>
-      <p className="text-muted">
-        {t.play.dailyDoneBody(score.toLocaleString())}
-      </p>
-      <div className="flex gap-3">
-        <Link
-          href="/play?mode=quick"
-          className="shadow-accent-glow rounded-xl bg-accent px-6 py-3 font-display font-bold text-background transition hover:bg-accent-strong"
-        >
-          {t.play.quickGame}
-        </Link>
-        <Link
-          href="/"
-          className="rounded-xl border border-border-subtle bg-surface/80 px-6 py-3 font-semibold backdrop-blur"
-        >
-          {t.play.home}
-        </Link>
+    <div className="bg-sky-gradient flex min-h-dvh w-full flex-col">
+      <div className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 p-6">
+        <header className="space-y-2 pt-8 text-center">
+          <p className="font-display text-xs font-semibold uppercase tracking-[0.3em] text-muted">
+            {t.play.dailyDoneTitle}
+          </p>
+          <h1 className="text-gold-glow font-display text-7xl font-bold tabular-nums text-gold">
+            {result.score.toLocaleString()}
+          </h1>
+          {rounds.length > 0 && (
+            <p className="font-display text-lg font-bold text-sand">
+              {rankTitle(result.score, rounds.length, t)}
+            </p>
+          )}
+          <p className="text-sm text-muted">{t.play.dailyDoneNote}</p>
+        </header>
+
+        {rounds.length > 0 && (
+          <ul className="space-y-2">
+            {rounds.map((round, i) => (
+              <li
+                key={`${round.city}-${i}`}
+                className="flex items-center justify-between rounded-xl border border-border-subtle bg-surface/80 px-4 py-3 backdrop-blur"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="font-medium">{round.city}</span>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[0.65rem] font-semibold tabular-nums ${distanceBadgeClass(round.distanceKm)}`}
+                  >
+                    {formatDistance(round.distanceKm)}
+                  </span>
+                </span>
+                <span className="font-display font-bold tabular-nums">
+                  {round.total.toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="flex flex-col gap-2 pb-4">
+          {rounds.length > 0 && (
+            <ShareButton
+              score={result.score}
+              distancesKm={rounds.map((round) => round.distanceKm)}
+            />
+          )}
+          <Link
+            href="/play?mode=quick"
+            className="shadow-accent-glow rounded-xl bg-accent py-3 text-center font-display font-bold text-background transition hover:bg-accent-strong"
+          >
+            {t.play.quickGame}
+          </Link>
+          <Link
+            href="/"
+            className="rounded-xl border border-border-subtle bg-surface/80 py-3 text-center font-medium backdrop-blur"
+          >
+            {t.play.home}
+          </Link>
+        </div>
       </div>
     </div>
   );

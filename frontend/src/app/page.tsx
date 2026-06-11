@@ -6,8 +6,8 @@ import { LanguageSwitcher, useI18n } from "@/lib/i18n";
 import type { GameMode } from "@/lib/rounds";
 
 const MODE_ORDER: { mode: GameMode; href: string; gold: boolean }[] = [
-  { mode: "quick", href: "/play?mode=quick", gold: false },
   { mode: "daily", href: "/play?mode=daily", gold: true },
+  { mode: "quick", href: "/play?mode=quick", gold: false },
   { mode: "infinite", href: "/play?mode=infinite", gold: false },
   { mode: "landmark", href: "/play?mode=landmark", gold: false },
   { mode: "expert", href: "/play?mode=expert", gold: false },
@@ -53,19 +53,19 @@ export default function Home() {
           </p>
         </header>
 
-        {/* Primary CTA */}
+        {/* Primary CTA: the daily is the main event */}
         <div className="mb-12 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/play?mode=quick"
-            className="shadow-accent-glow rounded-xl bg-accent px-10 py-4 text-center font-display text-lg font-bold text-background transition hover:bg-accent-strong active:scale-[0.99]"
-          >
-            {t.home.start}
-          </Link>
-          <Link
             href="/play?mode=daily"
-            className="rounded-xl border border-gold/60 bg-background/40 px-10 py-4 text-center font-display text-lg font-bold text-gold backdrop-blur transition hover:border-gold hover:bg-gold/10 active:scale-[0.99]"
+            className="rounded-xl bg-gold px-10 py-4 text-center font-display text-lg font-bold text-background shadow-[0_0_24px_rgba(214,168,79,0.35),0_4px_16px_rgba(0,0,0,0.4)] transition hover:brightness-110 active:scale-[0.99]"
           >
             {t.home.daily}
+          </Link>
+          <Link
+            href="/play?mode=quick"
+            className="rounded-xl border border-accent/60 bg-background/40 px-10 py-4 text-center font-display text-lg font-bold text-accent-strong backdrop-blur transition hover:border-accent hover:bg-accent/10 active:scale-[0.99]"
+          >
+            {t.home.start}
           </Link>
         </div>
 

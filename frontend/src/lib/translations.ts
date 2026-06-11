@@ -42,7 +42,7 @@ export interface Translations {
     seeResults: string;
     finish: string;
     dailyDoneTitle: string;
-    dailyDoneBody: (score: string) => string;
+    dailyDoneNote: string;
     quickGame: string;
     home: string;
   };
@@ -133,8 +133,7 @@ const kk: Translations = {
     seeResults: "Nätijelerdı köru",
     finish: "Aiaqtau",
     dailyDoneTitle: "Kündelıktı synaq aiaqtaldy",
-    dailyDoneBody: (score) =>
-      `Bügın ${score} ūpai jinadyñ. Jaña synaq tün ortasynda keledı.`,
+    dailyDoneNote: "Jaña synaq tün ortasynda keledı.",
     quickGame: "Jyldam oiyn",
     home: "Basty bet",
   },
@@ -224,8 +223,7 @@ const en: Translations = {
     seeResults: "See results",
     finish: "Finish",
     dailyDoneTitle: "Daily Challenge complete",
-    dailyDoneBody: (score) =>
-      `You scored ${score} today. A new challenge arrives at midnight.`,
+    dailyDoneNote: "A new challenge arrives at midnight.",
     quickGame: "Quick Game",
     home: "Home",
   },
@@ -315,8 +313,7 @@ const ru: Translations = {
     seeResults: "Результаты",
     finish: "Завершить",
     dailyDoneTitle: "Ежедневный вызов пройден",
-    dailyDoneBody: (score) =>
-      `Сегодня ты набрал ${score}. Новый вызов появится в полночь.`,
+    dailyDoneNote: "Новый вызов появится в полночь.",
     quickGame: "Быстрая игра",
     home: "Главная",
   },
