@@ -1,0 +1,9 @@
+# local agent settings
+.claude/settings.local.json
+
+# dependencies (belt and braces; frontend has its own .gitignore)
+node_modules/
+
+# env files
+.env
+.env.local
