@@ -87,6 +87,8 @@ export interface Translations {
     you: string;
     finished: string;
     connecting: string;
+    shareBeat: (names: string, points: string) => string;
+    shareLost: (winner: string, points: string) => string;
   };
 }
 
@@ -196,6 +198,10 @@ const kk: Translations = {
     you: "сен",
     finished: "Дайын",
     connecting: "Қосылуда…",
+    shareBeat: (names, points) =>
+      `Qaida-да ${names} ойыншыларын ${points} ұпайға ұттым! 🇰🇿🏆`,
+    shareLost: (winner, points) =>
+      `${winner} мені ${points} ұпайға ұтып кетті 🇰🇿 — кек қайтарамын!`,
   },
 };
 
@@ -304,6 +310,10 @@ const en: Translations = {
     you: "you",
     finished: "Done",
     connecting: "Connecting…",
+    shareBeat: (names, points) =>
+      `I beat ${names} by ${points} points in Qaida! 🇰🇿🏆`,
+    shareLost: (winner, points) =>
+      `${winner} beat me by ${points} in Qaida 🇰🇿 — rematch?`,
   },
 };
 
@@ -412,6 +422,10 @@ const ru: Translations = {
     you: "ты",
     finished: "Готово",
     connecting: "Подключение…",
+    shareBeat: (names, points) =>
+      `Я обыграл ${names} на ${points} очков в Qaida! 🇰🇿🏆`,
+    shareLost: (winner, points) =>
+      `${winner} обыграл меня на ${points} очков в Qaida 🇰🇿 — реванш?`,
   },
 };
 

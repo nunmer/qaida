@@ -7,7 +7,12 @@ import { SITE_URL } from "@/lib/site";
 interface ShareButtonProps {
   score: number;
   distancesKm: number[];
+  /** Overrides the default solo text — used for the multiplayer summary. */
+  text?: string;
 }
+
+/** Full URL (with scheme) so pasted shares auto-linkify in chat apps. */
+export const SHARE_URL = `https://${SITE_URL}`;
 
 function formatShareDistance(km: number): string {
   return km < 1 ? "<1km" : `${Math.round(km)}km`;
@@ -35,7 +40,7 @@ function buildShareText(
     "",
     catchphrase,
     "",
-    SITE_URL,
+    SHARE_URL,
   ].join("\n");
 }
 
@@ -56,7 +61,11 @@ const SOCIAL_TARGETS = [
   },
 ] as const;
 
-export default function ShareButton({ score, distancesKm }: ShareButtonProps) {
+export default function ShareButton({
+  score,
+  distancesKm,
+  text: textOverride,
+}: ShareButtonProps) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
@@ -66,7 +75,8 @@ export default function ShareButton({ score, distancesKm }: ShareButtonProps) {
     setCanNativeShare(typeof navigator.share === "function");
   }, []);
 
-  const text = buildShareText(score, distancesKm, t.share.catchphrase);
+  const text =
+    textOverride ?? buildShareText(score, distancesKm, t.share.catchphrase);
 
   const copy = async () => {
     try {

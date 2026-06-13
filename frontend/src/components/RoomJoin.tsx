@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
 import { loadPlayerName, savePlayerName } from "@/lib/multiplayer";
@@ -17,8 +17,16 @@ export default function RoomJoin({
   onJoin: () => void;
 }) {
   const { t } = useI18n();
-  const [name, setName] = useState(() => loadPlayerName());
+  // Load the saved name after mount — reading localStorage during render
+  // causes a server/client hydration mismatch that can leave the submit button
+  // stuck disabled until the field is edited.
+  const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const stored = loadPlayerName();
+    if (stored) setName(stored);
+  }, []);
 
   const join = () => {
     const trimmed = name.trim();

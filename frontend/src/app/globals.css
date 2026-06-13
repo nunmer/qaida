@@ -73,3 +73,20 @@ body {
 .maplibregl-canvas {
   cursor: crosshair;
 }
+
+/* Multiplayer: flash a player's row when they land a scoring guess, so others
+   can see at a glance who just moved. */
+@keyframes guess-flash {
+  0% {
+    background-color: rgba(0, 196, 196, 0);
+  }
+  25% {
+    background-color: rgba(0, 196, 196, 0.45);
+  }
+  100% {
+    background-color: rgba(0, 196, 196, 0);
+  }
+}
+.animate-guess-flash {
+  animation: guess-flash 1s ease-out;
+}

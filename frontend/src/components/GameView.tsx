@@ -5,16 +5,18 @@ import { useEffect, useState } from "react";
 import GuessMap from "@/components/GuessMap";
 import RoomOverlay from "@/components/RoomOverlay";
 import SatelliteSightPane from "@/components/SatelliteSightPane";
-import ShareButton from "@/components/ShareButton";
+import ShareButton, { SHARE_URL } from "@/components/ShareButton";
 import StreetViewPane, { streetViewEnabled } from "@/components/StreetViewPane";
 import type { GameLocation } from "@/data/locations";
 import { useI18n } from "@/lib/i18n";
+import type { RoomPlayer } from "@/lib/multiplayer";
 import { ROUNDS_PER_GAME, todayKey, type GameMode } from "@/lib/rounds";
 import { formatDistance } from "@/lib/scoring";
 import type { DailyResult } from "@/lib/storage";
 import type { Translations } from "@/lib/translations";
 import { useDailyResult } from "@/lib/useStorage";
 import { useGameStore } from "@/store/gameStore";
+import { useRoomStore } from "@/store/roomStore";
 
 interface GameViewProps {
   mode: GameMode;
@@ -382,9 +384,61 @@ function rankTitle(
   return t.ranks.tourist;
 }
 
+/** Competitive share text for a multiplayer room: who beat whom, by how much. */
+function buildRoomShareText(
+  players: RoomPlayer[],
+  selfId: string | null,
+  t: Translations,
+): string {
+  const ranked = [...players].sort((a, b) => b.totalScore - a.totalScore);
+  const self = ranked.find((p) => p.id === selfId);
+  const others = ranked.filter((p) => p.id !== selfId);
+  const myScore = self?.totalScore ?? 0;
+
+  let headline: string;
+  if (others.length === 0) {
+    headline = t.share.catchphrase;
+  } else if (ranked[0]?.id === selfId) {
+    const margin = myScore - (ranked[1]?.totalScore ?? 0);
+    headline = t.room.shareBeat(
+      others.map((o) => o.name).join(", "),
+      margin.toLocaleString("en-US"),
+    );
+  } else {
+    const winner = ranked[0];
+    headline = t.room.shareLost(
+      winner.name,
+      (winner.totalScore - myScore).toLocaleString("en-US"),
+    );
+  }
+
+  const medals = ["🥇", "🥈", "🥉"];
+  return [
+    "Qaida 🇰🇿",
+    headline,
+    "",
+    ...ranked.map((p, i) => {
+      const you = p.id === selfId ? ` (${t.room.you})` : "";
+      return `${medals[i] ?? "•"} ${p.name}${you} — ${p.totalScore.toLocaleString("en-US")}`;
+    }),
+    "",
+    SHARE_URL,
+  ].join("\n");
+}
+
 function GameSummary() {
   const { t } = useI18n();
   const { mode, results, totalScore, bestStreak, startGame } = useGameStore();
+  const roomActive = useRoomStore((s) => s.active);
+  const roster = useRoomStore((s) => s.roster);
+  const selfId = useRoomStore((s) => s.selfId);
+
+  const standings =
+    roomActive && roster.length > 0
+      ? [...roster].sort((a, b) => b.totalScore - a.totalScore)
+      : [];
+  const roomShareText =
+    standings.length > 0 ? buildRoomShareText(roster, selfId, t) : undefined;
 
   return (
     <div className="bg-sky-gradient flex min-h-dvh w-full flex-col">
@@ -403,6 +457,46 @@ function GameSummary() {
             {t.summary.line(results.length, bestStreak)}
           </p>
         </header>
+
+        {standings.length > 0 && (
+          <section className="space-y-2">
+            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              {t.room.players}
+            </p>
+            <ul className="space-y-2">
+              {standings.map((player, i) => (
+                <li
+                  key={player.id}
+                  className={`flex items-center justify-between gap-2 rounded-xl border px-4 py-3 backdrop-blur ${
+                    player.id === selfId
+                      ? "border-accent/50 bg-accent/10"
+                      : "border-border-subtle bg-surface/80"
+                  }`}
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="w-5 shrink-0 text-center font-display font-bold tabular-nums text-muted">
+                      {["🥇", "🥈", "🥉"][i] ?? i + 1}
+                    </span>
+                    <span className="truncate font-medium">
+                      {player.name}
+                      {player.id === selfId && (
+                        <span className="ml-1 text-muted">({t.room.you})</span>
+                      )}
+                    </span>
+                    {player.status !== "finished" && (
+                      <span className="shrink-0 rounded-full border border-border-subtle px-2 py-0.5 text-[0.65rem] font-semibold tabular-nums text-muted">
+                        {Math.min(player.roundIndex + 1, 5)}/5
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-display font-bold tabular-nums">
+                    {player.totalScore.toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <ul className="space-y-2">
           {results.map((r, i) => (
@@ -429,8 +523,9 @@ function GameSummary() {
           <ShareButton
             score={totalScore}
             distancesKm={results.map((r) => r.distanceKm)}
+            text={roomShareText}
           />
-          {mode !== "daily" && (
+          {mode !== "daily" && mode !== "room" && (
             <button
               onClick={() => startGame(mode)}
               className="shadow-accent-glow rounded-xl bg-accent py-3 font-display font-bold text-background transition hover:bg-accent-strong active:scale-[0.99]"

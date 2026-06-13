@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import usePartySocket from "partysocket/react";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -12,22 +12,33 @@ import {
   type RoomRosterMessage,
 } from "@/lib/multiplayer";
 import { useGameStore } from "@/store/gameStore";
+import { useRoomStore } from "@/store/roomStore";
 
 /**
- * Live opponents panel for a multiplayer room. Connects to the PartyKit room,
- * publishes this player's progress whenever the local game advances, and renders
- * everyone's stage and score. The local player is always shown from local state
- * so the panel stays meaningful even before the first roster echo arrives.
+ * Owns the multiplayer socket: publishes this player's progress whenever the
+ * local game advances, and mirrors the roster into the shared room store. While
+ * playing it renders a floating opponents panel (with a flash when someone
+ * lands a guess). On the finished screen it renders nothing — final standings
+ * move into the summary so they can't overlap the score.
  */
 export default function RoomOverlay({ roomCode }: { roomCode: string }) {
   const { t } = useI18n();
   const selfId = useMemo(() => getPlayerId(), []);
   const selfName = useMemo(() => loadPlayerName() || "Player", []);
-  const [roster, setRoster] = useState<RoomPlayer[]>([]);
+
+  const enter = useRoomStore((s) => s.enter);
+  const leave = useRoomStore((s) => s.leave);
+  const setRoster = useRoomStore((s) => s.setRoster);
+  const roster = useRoomStore((s) => s.roster);
 
   const roundIndex = useGameStore((s) => s.roundIndex);
   const totalScore = useGameStore((s) => s.totalScore);
   const status = useGameStore((s) => s.status);
+
+  useEffect(() => {
+    enter(selfId);
+    return () => leave();
+  }, [selfId, enter, leave]);
 
   const socket = usePartySocket({
     host: PARTY_HOST,
@@ -71,6 +82,11 @@ export default function RoomOverlay({ roomCode }: { roomCode: string }) {
     ...roster.filter((p) => p.id !== selfId),
   ].sort((a, b) => b.totalScore - a.totalScore);
 
+  const flashing = useGuessFlash(players);
+
+  // Standings live in the summary once the game is over (avoids overlapping it).
+  if (status === "finished") return null;
+
   return (
     <aside className="fixed left-2 top-13 z-30 w-44 overflow-hidden rounded-xl border border-border-subtle bg-surface/90 text-xs shadow-xl backdrop-blur sm:w-52">
       <div className="flex items-center justify-between gap-2 border-b border-border-subtle px-3 py-2">
@@ -83,7 +99,9 @@ export default function RoomOverlay({ roomCode }: { roomCode: string }) {
         {players.map((player) => (
           <li
             key={player.id}
-            className="flex items-center justify-between gap-2 px-3 py-2"
+            className={`flex items-center justify-between gap-2 px-3 py-2 ${
+              flashing.has(player.id) ? "animate-guess-flash" : ""
+            }`}
           >
             <span className="min-w-0 flex-1 truncate font-medium">
               {player.name}
@@ -102,6 +120,38 @@ export default function RoomOverlay({ roomCode }: { roomCode: string }) {
       </ul>
     </aside>
   );
+}
+
+/** Returns the set of player ids whose score just increased (flash for ~1s). */
+function useGuessFlash(players: RoomPlayer[]): Set<string> {
+  const prevScores = useRef<Record<string, number>>({});
+  const [flashing, setFlashing] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const newly: string[] = [];
+    for (const p of players) {
+      const prev = prevScores.current[p.id];
+      if (prev !== undefined && p.totalScore > prev) newly.push(p.id);
+      prevScores.current[p.id] = p.totalScore;
+    }
+    if (newly.length === 0) return;
+
+    setFlashing((curr) => {
+      const next = new Set(curr);
+      for (const id of newly) next.add(id);
+      return next;
+    });
+    const timer = setTimeout(() => {
+      setFlashing((curr) => {
+        const next = new Set(curr);
+        for (const id of newly) next.delete(id);
+        return next;
+      });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [players]);
+
+  return flashing;
 }
 
 function ProgressBadge({ player }: { player: RoomPlayer }) {
