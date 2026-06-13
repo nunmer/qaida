@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LanguageSwitcher, useI18n } from "@/lib/i18n";
+import { newRoomCode } from "@/lib/multiplayer";
 import type { GameMode } from "@/lib/rounds";
 
 const MODE_ORDER: { mode: GameMode; href: string; gold: boolean }[] = [
@@ -15,6 +17,9 @@ const MODE_ORDER: { mode: GameMode; href: string; gold: boolean }[] = [
 
 export default function Home() {
   const { t } = useI18n();
+  const router = useRouter();
+
+  const createRoom = () => router.push(`/room/${newRoomCode()}`);
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden">
@@ -57,16 +62,22 @@ export default function Home() {
         <div className="mb-12 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/play?mode=daily"
-            className="rounded-xl bg-gold px-10 py-4 text-center font-display text-lg font-bold text-background shadow-[0_0_24px_rgba(214,168,79,0.35),0_4px_16px_rgba(0,0,0,0.4)] transition hover:brightness-110 active:scale-[0.99]"
+            className="flex-1 rounded-xl bg-gold px-6 py-3.5 text-center font-display text-base font-bold text-background shadow-[0_0_24px_rgba(214,168,79,0.35),0_4px_16px_rgba(0,0,0,0.4)] transition hover:brightness-110 active:scale-[0.99]"
           >
             {t.home.daily}
           </Link>
           <Link
             href="/play?mode=quick"
-            className="rounded-xl border border-accent/60 bg-background/40 px-10 py-4 text-center font-display text-lg font-bold text-accent-strong backdrop-blur transition hover:border-accent hover:bg-accent/10 active:scale-[0.99]"
+            className="flex-1 rounded-xl border border-accent/60 bg-background/40 px-6 py-3.5 text-center font-display text-base font-bold text-accent-strong backdrop-blur transition hover:border-accent hover:bg-accent/10 active:scale-[0.99]"
           >
             {t.home.start}
           </Link>
+          <button
+            onClick={createRoom}
+            className="flex-1 rounded-xl border border-border-subtle bg-background/40 px-6 py-3.5 text-center font-display text-base font-bold text-foreground backdrop-blur transition hover:border-accent/70 hover:bg-surface/60 active:scale-[0.99]"
+          >
+            {t.room.title}
+          </button>
         </div>
 
         {/* Mode cards */}

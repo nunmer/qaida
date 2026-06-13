@@ -4,6 +4,7 @@ import {
   type GameMode,
   ROUNDS_PER_GAME,
   pickInfiniteBatch,
+  pickRoomRounds,
   pickRounds,
   todayKey,
 } from "@/lib/rounds";
@@ -31,6 +32,7 @@ interface GameState {
   roundStartedAt: number;
 
   startGame: (mode: GameMode) => void;
+  startRoomGame: (roomCode: string) => void;
   placePin: (lat: number, lng: number) => void;
   submitGuess: () => void;
   nextRound: () => void;
@@ -95,6 +97,16 @@ export const useGameStore = create<GameState>((set, get) => ({
       status: "guessing",
       mode,
       rounds,
+      roundStartedAt: Date.now(),
+    });
+  },
+
+  startRoomGame: (roomCode) => {
+    set({
+      ...initial,
+      status: "guessing",
+      mode: "room",
+      rounds: pickRoomRounds(roomCode),
       roundStartedAt: Date.now(),
     });
   },

@@ -5,7 +5,7 @@ import {
   type GameLocation,
 } from "@/data/locations";
 
-export type GameMode = "quick" | "daily" | "infinite" | "landmark" | "expert";
+export type GameMode = "quick" | "daily" | "infinite" | "landmark" | "expert" | "room";
 
 export const ROUNDS_PER_GAME = 5;
 
@@ -65,6 +65,19 @@ export function pickRounds(mode: GameMode, count = ROUNDS_PER_GAME): GameLocatio
       : Math.floor(Math.random() * 2 ** 31);
   const rng = mulberry32(seed);
   return shuffled(pool, rng).slice(0, Math.min(count, pool.length));
+}
+
+/**
+ * Multiplayer room: the room code seeds the PRNG, so everyone who opens the
+ * same invite link gets the identical five places — same trick as daily mode,
+ * but keyed on the shared room code instead of the calendar date.
+ */
+export function pickRoomRounds(
+  roomCode: string,
+  count = ROUNDS_PER_GAME,
+): GameLocation[] {
+  const rng = mulberry32(hashString(`qaida-room-${roomCode}`));
+  return shuffled(LOCATIONS, rng).slice(0, Math.min(count, LOCATIONS.length));
 }
 
 /** Infinite mode: deals a fresh shuffled batch, avoiding immediate repeats. */

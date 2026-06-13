@@ -75,6 +75,19 @@ export interface Translations {
     catchphrase: string;
     share: string;
   };
+  room: {
+    title: string;
+    subtitle: string;
+    namePlaceholder: string;
+    join: string;
+    invite: string;
+    copy: string;
+    copied: string;
+    players: string;
+    you: string;
+    finished: string;
+    connecting: string;
+  };
 }
 
 /* Kazakh (Cyrillic alphabet) — primary language. */
@@ -115,6 +128,11 @@ const kk: Translations = {
       title: "Сарапшы",
       tag: "қиын",
       description: "Шалғай қалалар, дала және табуы қиын жерлер",
+    },
+    room: {
+      title: "Достармен",
+      tag: "тікелей",
+      description: "Барлығына бірдей 5 орын — достарыңмен жарыс",
     },
   },
   play: {
@@ -166,6 +184,19 @@ const kk: Translations = {
     catchphrase: "Менен асып озасың ба?",
     share: "Бөлісу",
   },
+  room: {
+    title: "Достармен ойна",
+    subtitle: "Барлығына бірдей 5 орын — достарыңмен тікелей жарыс.",
+    namePlaceholder: "Атың",
+    join: "Кіру",
+    invite: "Шақыру сілтемесі",
+    copy: "Көшіру",
+    copied: "Көшірілді!",
+    players: "Ойыншылар",
+    you: "сен",
+    finished: "Дайын",
+    connecting: "Қосылуда…",
+  },
 };
 
 const en: Translations = {
@@ -205,6 +236,11 @@ const en: Translations = {
       title: "Expert",
       tag: "hard",
       description: "Remote cities, steppe and hard-to-place spots",
+    },
+    room: {
+      title: "With Friends",
+      tag: "live",
+      description: "Same 5 places — race your friends",
     },
   },
   play: {
@@ -256,6 +292,19 @@ const en: Translations = {
     catchphrase: "Can you beat me?",
     share: "Share",
   },
+  room: {
+    title: "Play with friends",
+    subtitle: "Same 5 places — race your friends in real time.",
+    namePlaceholder: "Your name",
+    join: "Join game",
+    invite: "Invite link",
+    copy: "Copy",
+    copied: "Copied!",
+    players: "Players",
+    you: "you",
+    finished: "Done",
+    connecting: "Connecting…",
+  },
 };
 
 const ru: Translations = {
@@ -295,6 +344,11 @@ const ru: Translations = {
       title: "Эксперт",
       tag: "сложно",
       description: "Далёкие города, степь и сложные места",
+    },
+    room: {
+      title: "С друзьями",
+      tag: "вживую",
+      description: "Одни и те же 5 мест — соревнуйся с друзьями",
     },
   },
   play: {
@@ -345,6 +399,19 @@ const ru: Translations = {
     copied: "Скопировано!",
     catchphrase: "Сможешь набрать больше?",
     share: "Поделиться",
+  },
+  room: {
+    title: "Игра с друзьями",
+    subtitle: "Одни и те же 5 мест — соревнуйся с друзьями в реальном времени.",
+    namePlaceholder: "Твоё имя",
+    join: "Войти",
+    invite: "Ссылка-приглашение",
+    copy: "Копировать",
+    copied: "Скопировано!",
+    players: "Игроки",
+    you: "ты",
+    finished: "Готово",
+    connecting: "Подключение…",
   },
 };
 

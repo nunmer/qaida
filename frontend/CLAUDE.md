@@ -2,8 +2,10 @@
 
 # Qaida frontend — conventions
 
-GeoGuessr-style geography game about Kazakhstan. Frontend-only MVP: all game
-logic runs client-side, persistence is `localStorage`. Do not add a backend.
+GeoGuessr-style geography game about Kazakhstan. Single-player is frontend-only:
+all game logic runs client-side, persistence is `localStorage`. The one
+exception is multiplayer "Play with friends" rooms, which use a thin PartyKit
+relay (see Multiplayer below) — keep all *game* logic client-side regardless.
 
 ## Design system (../DESIGN.md)
 
@@ -46,6 +48,34 @@ generic dashboard aesthetics, template cards, and corporate SaaS looks.
 - Round imagery fallback chain: Street View 360° → label-free satellite → local photo
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in `.env` enables Street View; the game
   must remain fully playable without it
+
+## Multiplayer ("Play with friends")
+
+Real-time rooms where everyone gets the **same 5 places** and sees each other's
+stage and score live. It's an *async race* — no lockstep; each player advances
+at their own pace.
+
+- `party/room.ts` — PartyKit server: a thin relay holding a roster of
+  `{id, name, roundIndex, totalScore, status}`, rebroadcast on every
+  join/progress/leave. No game data flows through it; scores are
+  client-reported (fine for friends, not a ranked ladder).
+- `src/lib/rounds.ts` `pickRoomRounds(code)` — the room code seeds the existing
+  PRNG, so the invite link alone determines the 5 places (same trick as daily).
+- `src/lib/multiplayer.ts` — host config, player identity, room-code helpers.
+- `src/app/room/[code]/` → `RoomGame` → `RoomJoin` (lobby) then `GameView`
+  with `roomCode` set, which renders `RoomOverlay` (live opponents panel).
+- The invite link *is* the room: `/room/<CODE>`. Home page mints a code via
+  `newRoomCode()`.
+- Resilience: if the PartyKit host is unreachable the game still plays solo —
+  the roster just stays empty.
+
+**Local dev:** `npm run party:dev` (serves the room on :1999; client defaults
+to `127.0.0.1:1999`). Smoke test the relay with `node scripts/test-room.mjs`.
+
+**Deploy (manual, needs your account):**
+1. `npx partykit login` (GitHub OAuth)
+2. `npm run party:deploy` → prints the host, e.g. `qaida.<username>.partykit.dev`
+3. Set `NEXT_PUBLIC_PARTYKIT_HOST` to that host in Vercel env, then redeploy.
 
 ## Verification
 

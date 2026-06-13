@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import GuessMap from "@/components/GuessMap";
+import RoomOverlay from "@/components/RoomOverlay";
 import SatelliteSightPane from "@/components/SatelliteSightPane";
 import ShareButton from "@/components/ShareButton";
 import StreetViewPane, { streetViewEnabled } from "@/components/StreetViewPane";
@@ -17,19 +18,27 @@ import { useGameStore } from "@/store/gameStore";
 
 interface GameViewProps {
   mode: GameMode;
+  /** When set, this is a multiplayer room: rounds are seeded by the code and
+   *  a live opponents overlay is shown. */
+  roomCode?: string;
 }
 
-export default function GameView({ mode }: GameViewProps) {
+export default function GameView({ mode, roomCode }: GameViewProps) {
   const { t } = useI18n();
   const status = useGameStore((s) => s.status);
   const startGame = useGameStore((s) => s.startGame);
+  const startRoomGame = useGameStore((s) => s.startRoomGame);
   const dailyResult = useDailyResult(todayKey());
-  const dailyBlocked = mode === "daily" && dailyResult !== null;
+  const dailyBlocked = !roomCode && mode === "daily" && dailyResult !== null;
 
   useEffect(() => {
+    if (roomCode) {
+      startRoomGame(roomCode);
+      return;
+    }
     if (dailyBlocked) return;
     startGame(mode);
-  }, [mode, startGame, dailyBlocked]);
+  }, [mode, roomCode, startGame, startRoomGame, dailyBlocked]);
 
   if (dailyBlocked && status === "idle") {
     return <DailyAlreadyPlayed result={dailyResult} />;
@@ -41,8 +50,13 @@ export default function GameView({ mode }: GameViewProps) {
       </div>
     );
   }
-  if (status === "finished") return <GameSummary />;
-  return <RoundScreen />;
+
+  return (
+    <>
+      {status === "finished" ? <GameSummary /> : <RoundScreen />}
+      {roomCode && <RoomOverlay roomCode={roomCode} />}
+    </>
+  );
 }
 
 function DailyAlreadyPlayed({ result }: { result: DailyResult }) {
