@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import usePartySocket from "partysocket/react";
 import { useI18n } from "@/lib/i18n";
 import {
-  PARTYKIT_HOST,
+  PARTY_HOST,
+  PARTY_NAME,
   getPlayerId,
   loadPlayerName,
   type RoomPlayer,
@@ -29,7 +30,8 @@ export default function RoomOverlay({ roomCode }: { roomCode: string }) {
   const status = useGameStore((s) => s.status);
 
   const socket = usePartySocket({
-    host: PARTYKIT_HOST,
+    host: PARTY_HOST,
+    party: PARTY_NAME,
     room: roomCode,
     id: selfId,
     onOpen() {

@@ -1,12 +1,17 @@
 import type { GameStatus } from "@/store/gameStore";
 
 /**
- * PartyKit host. Local dev runs `partykit dev` on :1999; production points at
- * the deployed worker via NEXT_PUBLIC_PARTYKIT_HOST. Multiplayer is additive —
- * if this is unreachable the game still plays solo, the roster just stays empty.
+ * Realtime host (partyserver on Cloudflare Workers). Local dev runs
+ * `wrangler dev` on :8787; production points at the deployed worker via
+ * NEXT_PUBLIC_PARTY_HOST (e.g. qaida-party.<sub>.workers.dev). Multiplayer is
+ * additive — if this is unreachable the game still plays solo, the roster just
+ * stays empty.
  */
-export const PARTYKIT_HOST =
-  process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? "127.0.0.1:1999";
+export const PARTY_HOST =
+  process.env.NEXT_PUBLIC_PARTY_HOST ?? "127.0.0.1:8787";
+
+/** Party name = kebab-case of the Durable Object binding/class (`Room`). */
+export const PARTY_NAME = "room";
 
 /** One player's live progress, mirrored between every client via the room. */
 export interface RoomPlayer {

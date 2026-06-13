@@ -55,27 +55,35 @@ Real-time rooms where everyone gets the **same 5 places** and sees each other's
 stage and score live. It's an *async race* — no lockstep; each player advances
 at their own pace.
 
-- `party/room.ts` — PartyKit server: a thin relay holding a roster of
-  `{id, name, roundIndex, totalScore, status}`, rebroadcast on every
-  join/progress/leave. No game data flows through it; scores are
-  client-reported (fine for friends, not a ranked ladder).
+- `party/server.ts` — partyserver Worker on Cloudflare (PartyKit's successor):
+  a thin relay where each connection holds its own player state
+  (`{id, name, roundIndex, totalScore, status}`) and the full roster is
+  rebroadcast on every join/progress/leave. One Durable Object == one room. No
+  game data flows through it; scores are client-reported (friends, not ranked).
+  Config in `wrangler.jsonc` (the `Room` DO binding; client party name is its
+  kebab-case → `"room"`).
 - `src/lib/rounds.ts` `pickRoomRounds(code)` — the room code seeds the existing
   PRNG, so the invite link alone determines the 5 places (same trick as daily).
-- `src/lib/multiplayer.ts` — host config, player identity, room-code helpers.
+- `src/lib/multiplayer.ts` — `PARTY_HOST`/`PARTY_NAME`, player identity, room
+  codes.
 - `src/app/room/[code]/` → `RoomGame` → `RoomJoin` (lobby) then `GameView`
   with `roomCode` set, which renders `RoomOverlay` (live opponents panel).
 - The invite link *is* the room: `/room/<CODE>`. Home page mints a code via
   `newRoomCode()`.
-- Resilience: if the PartyKit host is unreachable the game still plays solo —
-  the roster just stays empty.
+- Resilience: if the host is unreachable the game still plays solo — the roster
+  just stays empty.
 
-**Local dev:** `npm run party:dev` (serves the room on :1999; client defaults
-to `127.0.0.1:1999`). Smoke test the relay with `node scripts/test-room.mjs`.
+**Local dev:** `npm run party:dev` (`wrangler dev` on :8787; client defaults to
+`127.0.0.1:8787`). Smoke test the relay with `node scripts/test-room.mjs`
+(set `PARTY_HOST=<host>` to test a deployed Worker).
 
-**Deploy (manual, needs your account):**
-1. `npx partykit login` (GitHub OAuth)
-2. `npm run party:deploy` → prints the host, e.g. `qaida.<username>.partykit.dev`
-3. Set `NEXT_PUBLIC_PARTYKIT_HOST` to that host in Vercel env, then redeploy.
+**Deploy (manual, needs your Cloudflare account):**
+1. `npx wrangler login` (Cloudflare OAuth; first deploy also needs a
+   workers.dev subdomain — open Workers once in the dashboard to create it)
+2. `npm run party:deploy` → prints the host, e.g. `qaida-party.<sub>.workers.dev`
+3. Set `NEXT_PUBLIC_PARTY_HOST` to that host in Vercel env, then redeploy.
+
+Currently deployed at `qaida-party.karamashj.workers.dev`.
 
 ## Verification
 
