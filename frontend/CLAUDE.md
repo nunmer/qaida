@@ -67,7 +67,18 @@ at their own pace.
 - `src/lib/multiplayer.ts` — `PARTY_HOST`/`PARTY_NAME`, player identity, room
   codes.
 - `src/app/room/[code]/` → `RoomGame` → `RoomJoin` (lobby) then `GameView`
-  with `roomCode` set, which renders `RoomOverlay` (live opponents panel).
+  with `roomCode` set, which renders `RoomOverlay`.
+- `RoomOverlay` owns the socket, publishes this player's progress, and mirrors
+  the roster into `src/store/roomStore.ts`. It draws the floating opponents
+  panel **during play** (a row flashes — `.animate-guess-flash` — when a
+  player's score jumps) and renders **nothing on the finished screen**: final
+  standings move into `GameSummary` (read from `roomStore`) so they can't
+  overlap the score on phones. The socket stays mounted on the summary so the
+  "finished" status still broadcasts.
+- `ShareButton` takes an optional `text` override; the room summary passes
+  competitive copy ("I beat X, Y by N points" / rematch) built from the
+  standings. `RoomJoin` loads the saved name in an effect (not during render)
+  to avoid a hydration mismatch that disables the start button.
 - The invite link *is* the room: `/room/<CODE>`. Home page mints a code via
   `newRoomCode()`.
 - Resilience: if the host is unreachable the game still plays solo — the roster
