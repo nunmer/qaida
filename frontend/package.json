@@ -11,6 +11,7 @@
     "party:deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "maplibre-gl": "^5.24.0",
     "next": "16.2.9",
     "partyserver": "^0.5.6",
